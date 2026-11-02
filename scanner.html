@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pemindai Barcode - Om Nana</title>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<style>
+body{font-family:Arial;background:#f3f5f7;padding:16px;text-align:center}
+.card{max-width:480px;margin:auto;background:white;padding:18px;border-radius:12px}
+#reader{width:100%;margin-top:15px}
+#status{margin-top:15px;font-weight:bold}
+button{padding:13px 20px;background:#176b45;color:white;border:0;border-radius:8px;font-size:16px}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>☕ Pemindai Barcode</h2>
+<p>Waroeng Coffee Om Nana</p>
+<div id="reader"></div>
+<p id="status">Menyiapkan kamera...</p>
+<button onclick="tutupPemindai()">Tutup</button>
+</div>
+<script>
+let scanner=null,aktif=false,sudahTerbaca=false;
+
+function status(teks){
+  document.getElementById('status').textContent=teks;
+}
+
+function tutupPemindai(){
+  if(scanner && aktif){
+    scanner.stop().then(()=>window.close()).catch(()=>window.close());
+  }else{
+    window.close();
+  }
+}
+
+function mulaiScanner(){
+  scanner=new Html5Qrcode('reader');
+
+  scanner.start(
+    {facingMode:'environment'},
+    {fps:10,qrbox:{width:280,height:140}},
+    function(barcode){
+      if(sudahTerbaca)return;
+      sudahTerbaca=true;
+      status('Barcode terbaca: '+barcode);
+
+      scanner.stop().then(function(){
+        aktif=false;
+        if(window.opener && !window.opener.closed){
+          window.opener.postMessage({
+            tipe:'HASIL_BARCODE_OM_NANA',
+            barcode:barcode
+          },'*');
+          window.close();
+        }else{
+          status('Barcode terbaca, tetapi halaman Tambah Stok tidak ditemukan.');
+        }
+      });
+    },
+    function(){}
+  ).then(function(){
+    aktif=true;
+    status('Kamera aktif. Silakan pindai barcode.');
+  }).catch(function(err){
+    status('Kamera gagal dibuka: '+err);
+  });
+}
+
+window.addEventListener('load',mulaiScanner);
+</script>
+</body>
+</html>
