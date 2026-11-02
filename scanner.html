@@ -37,38 +37,59 @@ function tutupPemindai(){
   }
 }
 
-function mulaiScanner(){
+
+async function mulaiScanner(){
+  if(typeof Html5Qrcode==='undefined'){
+    status('Library pemindai gagal dimuat.');
+    return;
+  }
+
   scanner=new Html5Qrcode('reader');
 
-  scanner.start(
-    {facingMode:'environment'},
-    {fps:10,qrbox:{width:280,height:140}},
-    function(barcode){
-      if(sudahTerbaca)return;
-      sudahTerbaca=true;
-      status('Barcode terbaca: '+barcode);
+  try {
+    const kamera = await Html5Qrcode.getCameras();
 
-      scanner.stop().then(function(){
-        aktif=false;
-        if(window.opener && !window.opener.closed){
-          window.opener.postMessage({
-            tipe:'HASIL_BARCODE_OM_NANA',
-            barcode:barcode
-          },'*');
-          window.close();
-        }else{
-          status('Barcode terbaca, tetapi halaman Tambah Stok tidak ditemukan.');
-        }
-      });
-    },
-    function(){}
-  ).then(function(){
+    if(!kamera || kamera.length === 0){
+      status('Kamera tidak ditemukan. Periksa kamera perangkat.');
+      return;
+    }
+
+    const pilihanKamera = kamera.find(k =>
+      /back|rear|environment|belakang/i.test(k.label)
+    ) || kamera[0];
+
+    await scanner.start(
+      pilihanKamera.id,
+      {fps:10,qrbox:{width:280,height:140}},
+      function(barcode){
+        if(sudahTerbaca)return;
+        sudahTerbaca=true;
+        status('Barcode terbaca: '+barcode);
+
+        scanner.stop().then(function(){
+          aktif=false;
+          if(window.opener && !window.opener.closed){
+            window.opener.postMessage({
+              tipe:'HASIL_BARCODE_OM_NANA',
+              barcode:barcode
+            },'*');
+            window.close();
+          }else{
+            status('Barcode terbaca, tetapi halaman Tambah Stok tidak ditemukan.');
+          }
+        });
+      },
+      function(){}
+    );
+
     aktif=true;
     status('Kamera aktif. Silakan pindai barcode.');
-  }).catch(function(err){
+
+  } catch(err) {
     status('Kamera gagal dibuka: '+err);
-  });
+  }
 }
+
 
 window.addEventListener('load',mulaiScanner);
 </script>
