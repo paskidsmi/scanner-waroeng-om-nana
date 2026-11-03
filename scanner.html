@@ -6,7 +6,87 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pemindai Barcode - Om Nana</title>
 <script src="https://unpkg.com/html5-qrcode"></script>
+
 <style>
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  font-family: Arial, sans-serif;
+  background: #101820;
+  color: white;
+}
+
+body {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  width: 100%;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 14px;
+  border-radius: 0;
+  background: #101820;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h2 {
+  margin: 12px 0 4px;
+}
+
+.card p {
+  margin: 6px 0;
+}
+
+#reader {
+  width: 100%;
+  flex: 1;
+  min-height: 65dvh;
+  margin-top: 15px;
+}
+
+#reader video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+#reader__scan_region {
+  min-height: 65dvh;
+}
+
+#reader__scan_region video {
+  object-fit: cover !important;
+}
+
+#status {
+  text-align: center;
+  font-weight: bold;
+  padding: 12px;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  margin-top: 10px;
+  background: #176b45;
+  color: white;
+  border: 0;
+  border-radius: 10px;
+  font-size: 17px;
+}
+</style>
+
 body{font-family:Arial;background:#f3f5f7;padding:16px;text-align:center}
 .card{max-width:480px;margin:auto;background:white;padding:18px;border-radius:12px}
 #reader{width:100%;margin-top:15px}
