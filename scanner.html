@@ -161,24 +161,15 @@ function status(teks) {
   document.getElementById('status').textContent = teks;
 }
 
-function mulaiPemindai() {
+
+async function mulaiPemindai() {
   scanner = new Html5Qrcode("reader");
 
-  Html5Qrcode.getCameras().then(function(kamera) {
+  status('Meminta akses kamera belakang...');
 
-    if (!kamera || kamera.length === 0) {
-      status('Kamera tidak ditemukan.');
-      return;
-    }
-
-    let kameraBelakang = kamera.find(function(k) {
-      return /back|rear|environment|belakang/i.test(k.label);
-    });
-
-    let kameraDipilih = kameraBelakang || kamera[0];
-
-    scanner.start(
-      kameraDipilih.id,
+  try {
+    await scanner.start(
+      { facingMode: "environment" },
       {
         fps: 10,
         qrbox: { width: 250, height: 150 },
@@ -206,24 +197,25 @@ function mulaiPemindai() {
           } else {
             status('Barcode terbaca. Halaman Tambah Stok tidak ditemukan.');
           }
+        }).catch(function(error) {
+          status('Barcode terbaca, tetapi kamera gagal dihentikan: ' + error);
         });
       },
 
       function() {
         // Abaikan kegagalan pembacaan sementara.
       }
+    );
 
-    ).then(function() {
-      aktif = true;
-      status('Kamera aktif. Silakan pindai barcode.');
-    }).catch(function(error) {
-      status('Kamera gagal dibuka: ' + error);
-    });
+    aktif = true;
+    status('Kamera belakang aktif. Silakan pindai barcode.');
 
-  }).catch(function(error) {
-    status('Tidak dapat mengakses kamera: ' + error);
-  });
+  } catch (error) {
+    aktif = false;
+    status('Kamera gagal dibuka: ' + error);
+  }
 }
+
 
 function tutupPemindai() {
   if (scanner && aktif) {
