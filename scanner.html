@@ -7,7 +7,6 @@
 <title>Pemindai Barcode - Om Nana</title>
 <script src="https://unpkg.com/html5-qrcode"></script>
 
-<style>
 * {
   box-sizing: border-box;
 }
@@ -16,82 +15,104 @@ html, body {
   margin: 0;
   padding: 0;
   width: 100%;
-  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
   font-family: Arial, sans-serif;
-  background: #101820;
-  color: white;
 }
 
 body {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
+  background: #101820;
 }
 
 .card {
   width: 100%;
-  min-height: 100dvh;
-  margin: 0;
-  padding: 14px;
-  border-radius: 0;
-  background: #101820;
+  height: 100dvh;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  background: #101820;
+  color: white;
 }
 
 h2 {
-  margin: 12px 0 4px;
+  height: 35px;
+  margin: 0;
+  text-align: center;
+  font-size: 20px;
 }
 
-.card p {
-  margin: 6px 0;
+.card > p {
+  margin: 2px 0 6px;
+  text-align: center;
 }
 
 #reader {
   width: 100%;
-  flex: 1;
-  min-height: 65dvh;
-  margin-top: 15px;
+  height: 50%;
+  min-height: 0;
+  flex: 0 0 50%;
+  overflow: hidden;
+  border-radius: 12px;
+  background: black;
 }
 
 #reader video {
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover;
+  object-fit: cover !important;
 }
 
 #reader__scan_region {
-  min-height: 65dvh;
+  min-height: 0 !important;
 }
 
 #reader__scan_region video {
   object-fit: cover !important;
 }
 
+.bagian-barcode {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bagian-barcode label {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#hasilBarcode {
+  width: 100%;
+  padding: 15px;
+  font-size: 21px;
+  font-weight: bold;
+  text-align: center;
+  border: 2px solid #176b45;
+  border-radius: 10px;
+  background: white;
+  color: #176b45;
+}
+
 #status {
   text-align: center;
-  font-weight: bold;
-  padding: 12px;
+  font-size: 14px;
+  margin: 5px 0;
 }
 
 button {
   width: 100%;
   padding: 15px;
-  margin-top: 10px;
   background: #176b45;
   color: white;
   border: 0;
   border-radius: 10px;
   font-size: 17px;
+  font-weight: bold;
 }
-</style>
 
-body{font-family:Arial;background:#f3f5f7;padding:16px;text-align:center}
-.card{max-width:480px;margin:auto;background:white;padding:18px;border-radius:12px}
-#reader{width:100%;margin-top:15px}
-#status{margin-top:15px;font-weight:bold}
-button{padding:13px 20px;background:#176b45;color:white;border:0;border-radius:8px;font-size:16px}
 </style>
 </head>
 <body>
