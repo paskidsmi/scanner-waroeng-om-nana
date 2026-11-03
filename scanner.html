@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -116,83 +115,30 @@ button {
 </style>
 </head>
 <body>
+
+<body>
 <div class="card">
-<h2>☕ Pemindai Barcode</h2>
-<p>Waroeng Coffee Om Nana</p>
-<div id="reader"></div>
-<p id="status">Menyiapkan kamera...</p>
-<button onclick="tutupPemindai()">Tutup</button>
+
+  <h2>☕ Pemindai Barcode</h2>
+  <p>Waroeng Coffee Om Nana</p>
+
+  <div id="reader"></div>
+
+  <div class="bagian-barcode">
+    <label>Barcode Terdeteksi</label>
+
+    <input
+      type="text"
+      id="hasilBarcode"
+      placeholder="Menunggu barcode..."
+      readonly
+    >
+
+    <p id="status">Arahkan kamera ke barcode produk.</p>
+
+    <button onclick="tutupPemindai()">TUTUP</button>
+  </div>
+
 </div>
-<script>
-let scanner=null,aktif=false,sudahTerbaca=false;
-
-function status(teks){
-  document.getElementById('status').textContent=teks;
-}
-
-function tutupPemindai(){
-  if(scanner && aktif){
-    scanner.stop().then(()=>window.close()).catch(()=>window.close());
-  }else{
-    window.close();
-  }
-}
-
-
-async function mulaiScanner(){
-  if(typeof Html5Qrcode==='undefined'){
-    status('Library pemindai gagal dimuat.');
-    return;
-  }
-
-  scanner=new Html5Qrcode('reader');
-
-  try {
-    const kamera = await Html5Qrcode.getCameras();
-
-    if(!kamera || kamera.length === 0){
-      status('Kamera tidak ditemukan. Periksa kamera perangkat.');
-      return;
-    }
-
-    const pilihanKamera = kamera.find(k =>
-      /back|rear|environment|belakang/i.test(k.label)
-    ) || kamera[0];
-
-    await scanner.start(
-      pilihanKamera.id,
-      {fps:10,qrbox:{width:280,height:140}},
-      function(barcode){
-        if(sudahTerbaca)return;
-        sudahTerbaca=true;
-        status('Barcode terbaca: '+barcode);
-
-        scanner.stop().then(function(){
-          aktif=false;
-          if(window.opener && !window.opener.closed){
-            window.opener.postMessage({
-              tipe:'HASIL_BARCODE_OM_NANA',
-              barcode:barcode
-            },'*');
-            window.close();
-          }else{
-            status('Barcode terbaca, tetapi halaman Tambah Stok tidak ditemukan.');
-          }
-        });
-      },
-      function(){}
-    );
-
-    aktif=true;
-    status('Kamera aktif. Silakan pindai barcode.');
-
-  } catch(err) {
-    status('Kamera gagal dibuka: '+err);
-  }
-}
-
-
-window.addEventListener('load',mulaiScanner);
-</script>
 </body>
 </html>
