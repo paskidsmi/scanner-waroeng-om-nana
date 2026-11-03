@@ -1,11 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pemindai Barcode - Om Nana</title>
+
 <script src="https://unpkg.com/html5-qrcode"></script>
 
+<style>
 * {
   box-sizing: border-box;
 }
@@ -25,6 +28,7 @@ body {
 
 .card {
   width: 100%;
+  height: 100vh;
   height: 100dvh;
   padding: 10px;
   display: flex;
@@ -34,15 +38,17 @@ body {
 }
 
 h2 {
-  height: 35px;
   margin: 0;
   text-align: center;
   font-size: 20px;
+  height: 35px;
+  flex-shrink: 0;
 }
 
 .card > p {
   margin: 2px 0 6px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 #reader {
@@ -111,10 +117,8 @@ button {
   font-size: 17px;
   font-weight: bold;
 }
-
 </style>
 </head>
-<body>
 
 <body>
 <div class="card">
@@ -134,11 +138,101 @@ button {
       readonly
     >
 
-    <p id="status">Arahkan kamera ke barcode produk.</p>
+    <p id="status">Mengaktifkan kamera...</p>
 
     <button onclick="tutupPemindai()">TUTUP</button>
   </div>
 
 </div>
+
+<script>
+let scanner;
+let aktif = false;
+let sudahTerbaca = false;
+
+function status(teks) {
+  document.getElementById('status').textContent = teks;
+}
+
+function mulaiPemindai() {
+  scanner = new Html5Qrcode("reader");
+
+  Html5Qrcode.getCameras().then(function(kamera) {
+
+    if (!kamera || kamera.length === 0) {
+      status('Kamera tidak ditemukan.');
+      return;
+    }
+
+    let kameraBelakang = kamera.find(function(k) {
+      return /back|rear|environment|belakang/i.test(k.label);
+    });
+
+    let kameraDipilih = kameraBelakang || kamera[0];
+
+    scanner.start(
+      kameraDipilih.id,
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 150 },
+        aspectRatio: 1.0
+      },
+
+      function(barcode) {
+        if (sudahTerbaca) return;
+
+        sudahTerbaca = true;
+
+        document.getElementById('hasilBarcode').value = barcode;
+        status('Barcode berhasil terdeteksi.');
+
+        scanner.stop().then(function() {
+          aktif = false;
+
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({
+              tipe: 'HASIL_BARCODE_OM_NANA',
+              barcode: barcode
+            }, '*');
+
+            window.close();
+          } else {
+            status('Barcode terbaca. Halaman Tambah Stok tidak ditemukan.');
+          }
+        });
+      },
+
+      function() {
+        // Abaikan kegagalan pembacaan sementara.
+      }
+
+    ).then(function() {
+      aktif = true;
+      status('Kamera aktif. Silakan pindai barcode.');
+    }).catch(function(error) {
+      status('Kamera gagal dibuka: ' + error);
+    });
+
+  }).catch(function(error) {
+    status('Tidak dapat mengakses kamera: ' + error);
+  });
+}
+
+function tutupPemindai() {
+  if (scanner && aktif) {
+    scanner.stop().then(function() {
+      aktif = false;
+      window.close();
+    }).catch(function() {
+      window.close();
+    });
+  } else {
+    window.close();
+  }
+}
+
+window.addEventListener('load', mulaiPemindai);
+</script>
+
 </body>
 </html>
